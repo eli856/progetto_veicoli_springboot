@@ -41,16 +41,16 @@ public class MotoImpl implements IMotoServices{
 				
 
 		    if (repTarga.existsByCodice(req.getCodiceTarga())) {
-		        throw new VeicoliExceptions("Targa già esistente");
+		        throw new VeicoliExceptions("targa_duplicate");
 		    }
 		    
 		    TipoAlimentazione alimentazione = repTipoA
 			        .findByIdAndTipoVeicolo(req.getIdAlimentazione(), TIPO)
-			        .orElseThrow(() -> new VeicoliExceptions("Alimentazione non valida per MOTO"));
+			        .orElseThrow(() -> new VeicoliExceptions("alim_invalid_moto"));
 		    
 		    Categoria cat = repC
 		    		.findByIdAndTipoVeicolo(req.getIdCategoria(), TIPO)
-		    		.orElseThrow(() -> new VeicoliExceptions("Categoria non valida per MOTO"));
+		    		.orElseThrow(() -> new VeicoliExceptions("cat_invalid_moto"));
 		    
 		    Moto moto = new Moto();
 		    moto.setColore(req.getColore());
@@ -77,7 +77,7 @@ public class MotoImpl implements IMotoServices{
 		log.debug("update Moto {}", req);
 		
 		if(req.getId() == null)
-			throw new VeicoliExceptions("id non fornito");
+			throw new VeicoliExceptions("id_required");
 		
 		Moto moto = repMo.findById(req.getId())
 				.orElseThrow(()-> new VeicoliExceptions("veicolo non trovato"));
@@ -92,13 +92,13 @@ public class MotoImpl implements IMotoServices{
 	    if (req.getIdAlimentazione() != null) {
 	        TipoAlimentazione alim = repTipoA
 	                .findByIdAndTipoVeicolo(req.getIdAlimentazione(), TIPO)
-	                .orElseThrow(() -> new VeicoliExceptions("Alimentazione non valida per MOTO"));
+	                .orElseThrow(() -> new VeicoliExceptions("alim_invalid_moto"));
 	        moto.setTipoAlimentazione(alim);
 	    }
 	    if (req.getIdCategoria() != null) {
 	        Categoria cat = repC
 	                .findByIdAndTipoVeicolo(req.getIdCategoria(), TIPO)
-	                .orElseThrow(() -> new VeicoliExceptions("Categoria non valida per MOTO"));
+	                .orElseThrow(() -> new VeicoliExceptions("cat_invalid_moto"));
 	        moto.setCategoria(cat);
 	    }
 	     
@@ -111,7 +111,7 @@ public class MotoImpl implements IMotoServices{
 	        Integer currentTargaId = moto.getTarga() != null ? moto.getTarga().getId() : -1;
 
 	        if (repTarga.existsByCodiceAndIdNot(req.getCodiceTarga(), currentTargaId)) {
-	            throw new VeicoliExceptions("Targa già esistente");
+	            throw new VeicoliExceptions("targa_duplicate");
 	        }
 
 	        if (moto.getTarga() != null) {
@@ -132,7 +132,7 @@ public class MotoImpl implements IMotoServices{
 		log.debug("delete Moto {}", id);
 		
 		Moto mot = repMo.findById(id)
-				.orElseThrow(() -> new VeicoliExceptions("moto non trovato"));
+				.orElseThrow(() -> new VeicoliExceptions("moto_ntfnd"));
 		
 		repMo.delete(mot);
 		
@@ -149,7 +149,7 @@ public class MotoImpl implements IMotoServices{
 	@Override
 	public MotoDTO getById(Integer id) throws Exception {
 		Moto mo = repMo.findById(id)
-	            .orElseThrow(() -> new VeicoliExceptions("moto non trovato"));
+	            .orElseThrow(() -> new VeicoliExceptions("moto_ntfnd"));
 	    return MotoMap.buildMotoDTO(mo);
 	}
 

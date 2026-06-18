@@ -40,16 +40,16 @@ public class MacchinaImpl implements IMacchinaServices{
 		log.debug("create Macchina {}", req);
 		
 		    if (repTarga.existsByCodice(req.getCodiceTarga())) {
-		        throw new VeicoliExceptions("Targa già esistente");
+		        throw new VeicoliExceptions("targa_duplicate");
 		    }
 		    
 		    TipoAlimentazione alimentazione = repTipoA
 			        .findByIdAndTipoVeicolo(req.getIdAlimentazione(), TIPO)
-			        .orElseThrow(() -> new VeicoliExceptions("Alimentazione non valida per MACCHINA"));
+			        .orElseThrow(() -> new VeicoliExceptions("alim_invalid_macch"));
 		    
 		    Categoria cat = repC
 		    		.findByIdAndTipoVeicolo(req.getIdCategoria(), TIPO)
-		    		.orElseThrow(() -> new VeicoliExceptions("Categoria non valida per MACCHINA"));
+		    		.orElseThrow(() -> new VeicoliExceptions("cat_invalid_macch"));
 
 		    // step 2 - build entity
 		    Macchina macchina = new Macchina();
@@ -80,10 +80,10 @@ public class MacchinaImpl implements IMacchinaServices{
 		log.debug("update Macchina {}", req);
 		
 		if(req.getId() == null)
-			throw new VeicoliExceptions("id non fornito");
+			throw new VeicoliExceptions("id_required");
 		
 		Macchina m = repM.findById(req.getId())
-				.orElseThrow(()-> new VeicoliExceptions("veicolo non trovato"));
+				.orElseThrow(()-> new VeicoliExceptions("veicolo_ntfnd"));
 		
 		 // veicoli fields
 	    if (req.getColore() != null) m.setColore(req.getColore());
@@ -95,13 +95,13 @@ public class MacchinaImpl implements IMacchinaServices{
 	    if (req.getIdAlimentazione() != null) {
 	        TipoAlimentazione alim = repTipoA
 	                .findByIdAndTipoVeicolo(req.getIdAlimentazione(), TIPO)
-	                .orElseThrow(() -> new VeicoliExceptions("Alimentazione non valida per MACCHINA"));
+	                .orElseThrow(() -> new VeicoliExceptions("alim_invalid_macch"));
 	        m.setTipoAlimentazione(alim);
 	    }
 	    if (req.getIdCategoria() != null) {
 	        Categoria cat = repC
 	                .findByIdAndTipoVeicolo(req.getIdCategoria(), TIPO)
-	                .orElseThrow(() -> new VeicoliExceptions("Categoria non valida per MACCHINA"));
+	                .orElseThrow(() -> new VeicoliExceptions("cat_invalid_macch"));
 	        m.setCategoria(cat);
 	    }
 
@@ -115,7 +115,7 @@ public class MacchinaImpl implements IMacchinaServices{
 	        Integer currentTargaId = m.getTarga() != null ? m.getTarga().getId() : -1;
 
 	        if (repTarga.existsByCodiceAndIdNot(req.getCodiceTarga(), currentTargaId)) {
-	            throw new VeicoliExceptions("Targa già esistente");
+	            throw new VeicoliExceptions("targa_duplicate");
 	        }
 
 	        if (m.getTarga() != null) {
@@ -137,7 +137,7 @@ public class MacchinaImpl implements IMacchinaServices{
 		log.debug("delete Macchina {}", id);
 		
 		Macchina macc = repM.findById(id)
-				.orElseThrow(() -> new VeicoliExceptions("macchina non trovato"));
+				.orElseThrow(() -> new VeicoliExceptions("macchina_ntfnd"));
 		
 		repM.delete(macc);
 		
@@ -153,7 +153,7 @@ public class MacchinaImpl implements IMacchinaServices{
 	@Override
 	public MacchinaDTO getById(Integer id) throws Exception {
 	    Macchina m = repM.findById(id)
-	            .orElseThrow(() -> new VeicoliExceptions("macchina non trovata"));
+	            .orElseThrow(() -> new VeicoliExceptions("macchina_ntfnd"));
 	    return MacchinaMap.buildMacchinaDTO(m);
 	}
 
