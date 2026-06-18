@@ -2,8 +2,8 @@ package com.veicoli.sb.services.implementations;
 
 import java.util.List;
 
-
 import org.springframework.stereotype.Service;
+
 import com.veicoli.sb.dto.input.MacchinaReq;
 import com.veicoli.sb.dto.output.MacchinaDTO;
 import com.veicoli.sb.exceptions.VeicoliExceptions;
@@ -14,6 +14,7 @@ import com.veicoli.sb.models.Targa;
 import com.veicoli.sb.models.TipoAlimentazione;
 import com.veicoli.sb.repositories.ICategoriaRepository;
 import com.veicoli.sb.repositories.IMacchinaRepository;
+import com.veicoli.sb.repositories.ITargaRepository;
 import com.veicoli.sb.repositories.ITipoAlimentazioneRepository;
 import com.veicoli.sb.services.interfaces.IMacchinaServices;
 
@@ -29,19 +30,26 @@ public class MacchinaImpl implements IMacchinaServices{
 	private final IMacchinaRepository repM;
 	private final ITipoAlimentazioneRepository repTipoA;
 	private final ICategoriaRepository repC;
+	private final ITargaRepository repTarga;
+	
+	private static final String TIPO = "MACCHINA";
 	
 	@Transactional
 	@Override
 	public void create(MacchinaReq req) throws Exception {
 		log.debug("create Macchina {}", req);
 		
-		TipoAlimentazione alimentazione = repTipoA
-		        .findById(req.getIdAlimentazione())
-		        .orElseThrow(() -> new VeicoliExceptions("Alimentazione non trovata"));
-
-		    Categoria categoria = repC
-		        .findById(req.getIdCategoria())
-		        .orElseThrow(() -> new VeicoliExceptions("Categoria non trovata"));
+		    if (repTarga.existsByCodice(req.getCodiceTarga())) {
+		        throw new VeicoliExceptions("Targa già esistente");
+		    }
+		    
+		    TipoAlimentazione alimentazione = repTipoA
+			        .findByIdAndTipoVeicolo(req.getIdAlimentazione(), TIPO)
+			        .orElseThrow(() -> new VeicoliExceptions("Alimentazione non valida per MACCHINA"));
+		    
+		    Categoria cat = repC
+		    		.findByIdAndTipoVeicolo(req.getIdCategoria(), TIPO)
+		    		.orElseThrow(() -> new VeicoliExceptions("Categoria non valida per MACCHINA"));
 
 		    // step 2 - build entity
 		    Macchina macchina = new Macchina();
@@ -50,7 +58,7 @@ public class MacchinaImpl implements IMacchinaServices{
 		    macchina.setAnnoProduzione(req.getAnnoProduzione());
 		    macchina.setModello(req.getModello());
 		    macchina.setTipoAlimentazione(alimentazione);
-		    macchina.setCategoria(categoria);
+		    macchina.setCategoria(cat);
 		    macchina.setCc(req.getCc());
 		    macchina.setNumeroPorte(req.getNumeroPorte());
 		    macchina.setNrRuote(4);
@@ -85,27 +93,34 @@ public class MacchinaImpl implements IMacchinaServices{
 
 	    // FK fields
 	    if (req.getIdAlimentazione() != null) {
-	        TipoAlimentazione alim = repTipoA.findById(req.getIdAlimentazione())
-	                .orElseThrow(() -> new VeicoliExceptions("alimentazione non trovata"));
+	        TipoAlimentazione alim = repTipoA
+	                .findByIdAndTipoVeicolo(req.getIdAlimentazione(), TIPO)
+	                .orElseThrow(() -> new VeicoliExceptions("Alimentazione non valida per MACCHINA"));
 	        m.setTipoAlimentazione(alim);
 	    }
-
 	    if (req.getIdCategoria() != null) {
-	        Categoria cat = repC.findById(req.getIdCategoria())
-	                .orElseThrow(() -> new VeicoliExceptions("categoria non trovata"));
+	        Categoria cat = repC
+	                .findByIdAndTipoVeicolo(req.getIdCategoria(), TIPO)
+	                .orElseThrow(() -> new VeicoliExceptions("Categoria non valida per MACCHINA"));
 	        m.setCategoria(cat);
 	    }
 
 	    // macchina fields
 	    if (req.getCc() != null) m.setCc(req.getCc());
 	    if (req.getNumeroPorte() != null) m.setNumeroPorte(req.getNumeroPorte());
-	    if (req.getNrRuote() != null) m.setNrRuote(req.getNrRuote());
+//	    if (req.getNrRuote() != null) m.setNrRuote(req.getNrRuote());
 
 	    // targa
 	    if (req.getCodiceTarga() != null) {
-	        if (m.getTarga() != null)
+	        Integer currentTargaId = m.getTarga() != null ? m.getTarga().getId() : -1;
+
+	        if (repTarga.existsByCodiceAndIdNot(req.getCodiceTarga(), currentTargaId)) {
+	            throw new VeicoliExceptions("Targa già esistente");
+	        }
+
+	        if (m.getTarga() != null) {
 	            m.getTarga().setCodice(req.getCodiceTarga());
-	        else {
+	        } else {
 	            Targa targa = new Targa();
 	            targa.setCodice(req.getCodiceTarga());
 	            targa.setMacchina(m);

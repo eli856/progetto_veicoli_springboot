@@ -37,8 +37,8 @@ public class BiciReq {
     private Integer idCategoria;       // FK → categoria
     
  // fields from bici table
-    @NotNull (groups = ValidationGroups.Create.class, message ="numero Ruote non caricato")
-    private Integer nrRuote;
+//    @NotNull (groups = ValidationGroups.Create.class, message ="numero Ruote non caricato")
+//    private Integer nrRuote;
     
     @NotNull (groups = ValidationGroups.Create.class, message ="numero Marce Ruote non caricato")
     private Integer numeroMarce;

@@ -8,17 +8,13 @@ import com.veicoli.sb.dto.input.BiciReq;
 import com.veicoli.sb.dto.output.BiciDTO;
 import com.veicoli.sb.exceptions.VeicoliExceptions;
 import com.veicoli.sb.mapping.BiciMap;
-import com.veicoli.sb.mapping.MotoMap;
 import com.veicoli.sb.models.Bici;
 import com.veicoli.sb.models.Categoria;
-import com.veicoli.sb.models.Moto;
-import com.veicoli.sb.models.Targa;
 import com.veicoli.sb.models.TipoAlimentazione;
 import com.veicoli.sb.models.TipoFreno;
 import com.veicoli.sb.models.TipoSospensione;
 import com.veicoli.sb.repositories.IBiciRepository;
 import com.veicoli.sb.repositories.ICategoriaRepository;
-import com.veicoli.sb.repositories.IMotoRepository;
 import com.veicoli.sb.repositories.ITipoAlimentazioneRepository;
 import com.veicoli.sb.repositories.ITipoFrenoRepository;
 import com.veicoli.sb.repositories.ITipoSospensioneRepository;
@@ -39,19 +35,21 @@ public class BiciImpl implements IBiciServices{
 	private final ITipoFrenoRepository repTipoF;
 	private final ITipoSospensioneRepository repTipoS;
 	
+	private static final String TIPO = "BICI";
+	
 	@Transactional
 	@Override
 	public void create(BiciReq req) throws Exception {
 		log.debug("create Bici {}", req);
 		
 		TipoAlimentazione alimentazione = repTipoA
-		        .findById(req.getIdAlimentazione())
-		        .orElseThrow(() -> new VeicoliExceptions("Alimentazione non trovata"));
-
-		    Categoria categoria = repC
-		        .findById(req.getIdCategoria())
-		        .orElseThrow(() -> new VeicoliExceptions("Categoria non trovata"));
-		    
+		        .findByIdAndTipoVeicolo(req.getIdAlimentazione(), TIPO)
+		        .orElseThrow(() -> new VeicoliExceptions("Alimentazione non valida per MACCHINA"));
+	    
+	    Categoria cat = repC
+	    		.findByIdAndTipoVeicolo(req.getIdCategoria(), TIPO)
+	    		.orElseThrow(() -> new VeicoliExceptions("Categoria non valida per MACCHINA"));
+		
 		    TipoFreno tipoFreno = repTipoF
 			        .findById(req.getTipoFreno())
 			        .orElseThrow(() -> new VeicoliExceptions("Tipo freno non trovata"));
@@ -66,7 +64,7 @@ public class BiciImpl implements IBiciServices{
 		    bici.setAnnoProduzione(req.getAnnoProduzione());
 		    bici.setModello(req.getModello());
 		    bici.setTipoAlimentazione(alimentazione);
-		    bici.setCategoria(categoria);
+		    bici.setCategoria(cat);
 		    bici.setNrRuote(2);
 		    
 		    bici.setNumeroMarce(req.getNumeroMarce());
@@ -98,15 +96,18 @@ public class BiciImpl implements IBiciServices{
 	    if (req.getPieghevole() != null) bi.setPieghevole(req.getPieghevole());
 	    
 	    if (req.getIdAlimentazione() != null) {
-	        TipoAlimentazione alim = repTipoA.findById(req.getIdAlimentazione())
-	                .orElseThrow(() -> new VeicoliExceptions("alimentazione non trovata"));
+	        TipoAlimentazione alim = repTipoA
+	                .findByIdAndTipoVeicolo(req.getIdAlimentazione(), TIPO)
+	                .orElseThrow(() -> new VeicoliExceptions("Alimentazione non valida per BICI"));
 	        bi.setTipoAlimentazione(alim);
 	    }
 	    if (req.getIdCategoria() != null) {
-	        Categoria cat = repC.findById(req.getIdCategoria())
-	                .orElseThrow(() -> new VeicoliExceptions("categoria non trovata"));
+	        Categoria cat = repC
+	                .findByIdAndTipoVeicolo(req.getIdCategoria(), TIPO)
+	                .orElseThrow(() -> new VeicoliExceptions("Categoria non valida per BICI"));
 	        bi.setCategoria(cat);
 	    }
+	    
 	    if (req.getTipoFreno() != null) {
 	        TipoFreno freno = repTipoF.findById(req.getTipoFreno())
 	                .orElseThrow(() -> new VeicoliExceptions("Tipo Freno non trovata"));

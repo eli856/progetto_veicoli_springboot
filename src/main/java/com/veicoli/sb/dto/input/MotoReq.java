@@ -1,7 +1,9 @@
 package com.veicoli.sb.dto.input;
 
 import jakarta.validation.constraints.NotBlank;
+
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -36,8 +38,8 @@ public class MotoReq {
     private Integer idCategoria;       // FK → categoria
     
     // fields from moto table
-    @NotNull (groups = ValidationGroups.Create.class, message ="numero Ruote non caricato")
-    private Integer nrRuote;
+//    @NotNull (groups = ValidationGroups.Create.class, message ="numero Ruote non caricato")
+//    private Integer nrRuote;
     
     @NotNull (groups = ValidationGroups.Create.class, message ="cc non caricato")
     private Integer cc;
@@ -45,6 +47,11 @@ public class MotoReq {
     // targa
     @NotNull (groups = ValidationGroups.Create.class, message ="codice Targa non caricato")
 	@NotBlank(groups = ValidationGroups.Create.class, message ="codice Targa non caricato")
+    @Pattern(
+    	    regexp = "^[A-Z]{2}\\d{3}[A-Z]{2}$",
+    	    message = "formato targa non valido",
+    	    groups = {ValidationGroups.Create.class, ValidationGroups.Update.class}
+    	    )
     private String codiceTarga;
     
 }
