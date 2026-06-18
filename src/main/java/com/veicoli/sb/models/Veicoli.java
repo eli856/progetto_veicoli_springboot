@@ -46,4 +46,7 @@ public class Veicoli {
     @ManyToOne
     @JoinColumn(name = "id_categoria", nullable = false)
     private Categoria categoria;
+    
+    @Column(name = "tipo_veicolo", insertable = false, updatable = false)
+    private String tipoVeicolo;
 }
