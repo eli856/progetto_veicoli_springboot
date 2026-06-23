@@ -73,7 +73,7 @@ public class BiciImpl implements IBiciServices{
 		    bici.setTipoSospensione(sospensione);
 		    
 		    repB.save(bici);
-		
+
 	}
 
 	@Transactional

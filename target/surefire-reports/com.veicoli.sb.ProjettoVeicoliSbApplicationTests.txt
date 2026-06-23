@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.veicoli.sb.ProjettoVeicoliSbApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.601 s -- in com.veicoli.sb.ProjettoVeicoliSbApplicationTests
